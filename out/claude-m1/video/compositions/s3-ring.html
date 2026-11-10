@@ -1,0 +1,84 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s3-bg { background: var(--video-bg-soft); }                     /* beat-sheet 3: video-bg-soft */
+    #s3-stage { position: absolute; inset: 0; }
+    #s3-stage .part-slot { position: absolute; }                    /* left · top은 스크립트가 배치 규칙 3으로 계산 */
+    /* 가운데 글자: video-headline 1줄 video-accent (beat-sheet 3) · 마스크 = 글줄 높이 */
+    #s3-title-mask {
+      position: absolute; overflow: hidden; left: 0; right: 0;
+      height: var(--video-headline-line); text-align: center;
+    }
+    #s3-title {
+      display: block; white-space: nowrap; word-break: keep-all;
+      font-weight: var(--video-headline-weight);
+      font-size: var(--video-headline-size);
+      line-height: var(--video-headline-line);
+      color: var(--video-accent);
+    }
+  </style>
+  <div id="root" data-composition-id="s3" data-width="1920" data-height="1080">
+    <div id="s3-bg" class="scene-bg"></div>
+    <!-- parts-ring (이번 영상만 승인 · decisions.md): 둘레 부품이 가장자리에서 반쯤 잘리는 것은 의도 -->
+    <div id="s3-stage" data-layout-allow-overflow>
+      <!-- 위: 왼 skill-card-1 · 가운데 badge-approved · 오른 skill-card-2 (R7) -->
+      <div id="s3-top-l" class="part-slot part-skill-card" data-row="top" data-col="l"><iframe class="part-frame" src="parts/skill-card-1.html" title="skill-card-1"></iframe></div>
+      <div id="s3-top-c" class="part-slot part-badge-approved" data-row="top" data-col="c"><iframe class="part-frame" src="parts/badge-approved.html" title="badge-approved"></iframe></div>
+      <div id="s3-top-r" class="part-slot part-skill-card" data-row="top" data-col="r"><iframe class="part-frame" src="parts/skill-card-2.html" title="skill-card-2"></iframe></div>
+      <!-- 아래: 왼 stat-card · 가운데 button-submit(submit) · 오른 skill-card-3 (R7) -->
+      <div id="s3-bot-l" class="part-slot part-stat-card" data-row="bot" data-col="l"><iframe class="part-frame" src="parts/stat-card.html" title="stat-card"></iframe></div>
+      <div id="s3-bot-c" class="part-slot part-button-submit" data-row="bot" data-col="c"><iframe class="part-frame" src="parts/button-submit.html?state=submit" title="button-submit"></iframe></div>
+      <div id="s3-bot-r" class="part-slot part-skill-card" data-row="bot" data-col="r"><iframe class="part-frame" src="parts/skill-card-3.html" title="skill-card-3"></iframe></div>
+      <div id="s3-title-mask"><span id="s3-title">나의 자산이 되기까지</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const k = HF.n("video-scale");
+      const W = HF.n("video-w"), H = HF.n("video-h"), gap = HF.n("video-gap");
+      const size = {
+        "s3-top-l": ["skill-card", "skill-card"], "s3-top-c": ["badge-approved", "badge-approved"], "s3-top-r": ["skill-card", "skill-card"],
+        "s3-bot-l": ["stat-card", "stat-card"], "s3-bot-c": ["button-submit", "button-submit"], "s3-bot-r": ["skill-card", "skill-card"],
+      };
+      const wOf = (id) => HF.n(`part-${size[id][0]}-w`) * k;                    // video.md 5장 영상 크기
+      const hOf = (id) => HF.n(`part-${size[id][1]}-h`) * k;
+      // 배치 규칙 3 (위치 계산)
+      //  가운데 열 기준 폭 = button-submit 영상 폭 → 가운데 열 가장자리 = 화면 가운데 ± 기준 폭 ÷ 2
+      //  왼쪽 열: 부품 오른쪽 가장자리 = 가운데 열 왼쪽 가장자리 − video-gap · 오른쪽 열: 부품 왼쪽 가장자리 = 가운데 열 오른쪽 가장자리 + video-gap
+      //  위 줄: 부품 세로 가운데 = 화면 위 가장자리(0) · 아래 줄: 부품 세로 가운데 = 화면 아래 가장자리(H)
+      const colW = HF.n("part-button-submit-w") * k;
+      const innerL = W / 2 - colW / 2 - gap, innerR = W / 2 + colW / 2 + gap;
+      let topRowBottom = 0, botRowTop = H;
+      Object.keys(size).forEach((id) => {
+        const el = document.getElementById(id);
+        const w = wOf(id), h = hOf(id);
+        const col = el.dataset.col, row = el.dataset.row;
+        const x = col === "c" ? W / 2 - w / 2 : col === "l" ? innerL - w : innerR;
+        const y = row === "top" ? 0 - h / 2 : H - h / 2;
+        el.style.left = x + "px"; el.style.top = y + "px";
+        if (row === "top") topRowBottom = Math.max(topRowBottom, y + h);
+        else botRowTop = Math.min(botRowTop, y);
+      });
+      // 가운데 글자: 위 줄 아래 가장자리(가장 낮은 것)와 아래 줄 위 가장자리(가장 높은 것) 사이 빈 곳의 세로 가운데 · 가로 가운데
+      const mask = document.getElementById("s3-title-mask");
+      mask.style.top = ((topRowBottom + botRowTop) / 2 - HF.n("video-headline-line") / 2) + "px";
+
+      const tl = gsap.timeline({ paused: true });
+      const enter = { duration: HF.f("dur-m"), ease: HF.ease("ease-out") };
+      // parts-ring: 부품마다 part-in (enter + 마스크 대신 위 dist-m · 투명도 0 → 1) · stagger dur-m (R7 순서)
+      ["#s3-top-l", "#s3-top-c", "#s3-top-r", "#s3-bot-l", "#s3-bot-c", "#s3-bot-r"].forEach((sel, i) => {
+        if (i === 0) HF.leadFromTo(tl, sel, { y: HF.n("dist-m"), opacity: 0 }, { y: 0, opacity: 1 }, "dur-m", "ease-out", 0); // 첫 부품 = 장면 첫 프레임에 이미 enter 중
+        else tl.fromTo(sel, { y: HF.n("dist-m"), opacity: 0 }, { y: 0, opacity: 1, ...enter }, i * HF.f("dur-m"));
+      });
+      // 7번째 항목: 가운데 글자 enter (mask-rise → 0), stagger 6개 상한 → 6 × dur-m에 시작 (= 장면 f54 · 전체 f234)
+      const titleStart = HF.n("stagger-max") * HF.f("dur-m");
+      tl.fromTo("#s3-title", { yPercent: HF.n("mask-rise") }, { yPercent: 0, ...enter }, titleStart);
+      // hold-m 한 번 → scene-out (부품 · 글자 한꺼번에), 절반에서 cut-in-motion
+      const outStart = titleStart + HF.f("dur-m") + HF.f("hold-m");              // = 장면 f93
+      tl.fromTo("#s3-stage", { opacity: 1 }, { opacity: 0, duration: HF.f("dur-s"), ease: HF.ease("ease-in") }, outStart);
+      tl.set({}, {}, outStart + HF.f("dur-s") / 2);                             // 장면 끝 f96
+      HF.maskWatch(tl, "#s3-title");                                    // 마스크 밖 머리카락 선 방지
+      window.__timelines["s3"] = tl;
+    })();
+  </script>
+</template>

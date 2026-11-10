@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>claude-m1 스냅보드</title>
+<style>
+  @font-face { font-family: "Pretendard"; font-weight: 400; src: url("../video/assets/fonts/Pretendard-Regular.otf") format("opentype"); }
+  @font-face { font-family: "Pretendard"; font-weight: 600; src: url("../video/assets/fonts/Pretendard-SemiBold.otf") format("opentype"); }
+  :root { --bg: #f7f7f8; --surface: #ffffff; --text: #18191b; --muted: #75777c; --border: #e9eaed; } /* design.md 1장 */
+  body { margin: 0; padding: 32px 16px; background: var(--bg); color: var(--text); font-family: "Pretendard", sans-serif; }
+  header, main, section { max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 16px; font-weight: 600; margin: 40px auto 12px; max-width: 1200px; }
+  header p { margin: 0 0 24px; font-size: 14px; color: var(--muted); }
+  main { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+  figure { margin: 0; }
+  img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  figcaption { margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--muted); }
+  figcaption b { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>claude-m1 스냅보드 · A안 5장면 · 450f (뼈대 figma-2003-332)</h1>
+    <p>장면마다 한 컷: enter가 끝나고 머묾이 시작된 프레임 (beat-sheet.md 장면별 타임라인) + 레퍼런스 비교용 추가 2컷. 승인 ② 대기.</p>
+  </header>
+  <main>
+    <figure>
+      <img src="s01.png" alt="1 훅 컷 f87" width="1920" height="1080">
+      <figcaption><b>1 훅</b> · 시작 f0 · 컷 f87 · text-type → cam-pull 끝 (hold-m 시작)</figcaption>
+    </figure>
+    <figure>
+      <img src="s02.png" alt="2 격자 컷 f147" width="1920" height="1080">
+      <figcaption><b>2 격자</b> · 시작 f120 · 컷 f147 · enter · stagger 열마다 끝 (hold-s 시작)</figcaption>
+    </figure>
+    <figure>
+      <img src="s03.png" alt="3 부품 둘레 컷 f243" width="1920" height="1080">
+      <figcaption><b>3 부품 둘레</b> · 시작 f180 · 컷 f243 · parts-ring 끝 (hold-m 시작)</figcaption>
+    </figure>
+    <figure>
+      <img src="s04.png" alt="4 상징 · 빛 컷 f285" width="1920" height="1080">
+      <figcaption><b>4 상징 · 빛</b> · 시작 f276 · 컷 f285 · enter + scale-from 끝 (hold-s 시작)</figcaption>
+    </figure>
+    <figure>
+      <img src="s05.png" alt="5 엔드 컷 f390" width="1920" height="1080">
+      <figcaption><b>5 엔드</b> · 시작 f333 · 컷 f390 · end-reveal 끝 (hold-end 시작)</figcaption>
+    </figure>
+    <figure>
+      <img src="s01b-f36.png" alt="1 훅 · 추가 컷 f36" width="1920" height="1080">
+      <figcaption><b>1 훅 · 추가</b> · 시작 f0 · 컷 f36 · text-type 중 · cam-follow (레퍼런스 컷 01 비교)</figcaption>
+    </figure>
+    <figure>
+      <img src="s02b-f179.png" alt="2 격자 · 추가 컷 f179" width="1920" height="1080">
+      <figcaption><b>2 격자 · 추가</b> · 시작 f120 · 컷 f179 · zoom-through 끝 (레퍼런스 컷 02 비교)</figcaption>
+    </figure>
+  </main>
+  <h2>레퍼런스 구도 비교 (왼쪽 레퍼런스 · 오른쪽 우리 컷)</h2>
+  <section><img src="ref-compare.png" alt="레퍼런스 4컷과 우리 컷 비교" width="1968" height="2416"></section>
+</body>
+</html>

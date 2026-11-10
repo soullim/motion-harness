@@ -1,0 +1,25 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s4-bg { background: var(--video-bg-soft); }                 /* beat-sheet 4: video-bg-soft */
+  </style>
+  <div id="root" data-composition-id="s4" data-width="1920" data-height="1080">
+    <div id="s4-bg" class="scene-bg"></div>
+    <!-- 3의 점 자리 = 화면 가운데 (beat-sheet 4) -->
+    <div id="s4-stage" class="scene-stage">
+      <div id="s4-badge" class="part-slot part-badge-approved"><iframe class="part-frame" src="parts/badge-approved.html" title="badge-approved"></iframe></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      // badge-pulse: enter + 마스크 대신 scale-from → 1 (dur-m · ease-out, 가운데) (motion.md 3장)
+      tl.fromTo("#s4-badge", { scale: HF.n("scale-from") },
+        { scale: 1, transformOrigin: "50% 50%", duration: HF.f("dur-m"), ease: HF.ease("ease-out") }, 0);
+      const outStart = HF.f("dur-m") + HF.f("hold-s");                           // = 장면 f27
+      tl.fromTo("#s4-stage", { opacity: 1 }, { opacity: 0, duration: HF.f("dur-s"), ease: HF.ease("ease-in") }, outStart);
+      tl.set({}, {}, outStart + HF.f("dur-s") / 2);                              // 장면 끝 f30
+      window.__timelines["s4"] = tl;
+    })();
+  </script>
+</template>

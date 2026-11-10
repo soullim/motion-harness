@@ -1,0 +1,43 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s3-bg { background: var(--video-bg-soft); }                 /* beat-sheet 3: video-bg-soft */
+  </style>
+  <div id="root" data-composition-id="s3" data-width="1920" data-height="1080">
+    <div id="s3-bg" class="scene-bg"></div>
+    <div id="s3-stage" class="scene-stage">
+      <!-- button-submit data-state="submit" (부품의 ?state= 로 지정 · design.md 6장) -->
+      <div id="s3-button" class="part-slot part-button-submit"><iframe id="s3-button-frame" class="part-frame" src="parts/button-submit.html?state=submit" title="button-submit"></iframe></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const slot = document.querySelector("#s3-button");
+      const frame = document.querySelector("#s3-button-frame");
+      const out = { duration: HF.f("dur-m"), ease: HF.ease("ease-out") };
+      const inn = (d) => ({ duration: HF.f(d), ease: HF.ease("ease-in") });
+
+      // part-in: enter + 마스크 대신 위 dist-m · 투명도 0 → 1 (motion.md 3장)
+      tl.fromTo(slot, { y: HF.n("dist-m"), opacity: 0 }, { y: 0, opacity: 1, ...out }, 0);
+      // button-press: 앞 hold-m → press-scale (가운데) dur-s ease-in → 1 dur-m ease-out (motion.md 3장)
+      const press = HF.f("dur-m") + HF.f("hold-m");                              // = 장면 f39 (전체 f198)
+      tl.fromTo(slot, { scale: 1 }, { scale: HF.n("press-scale"), transformOrigin: "50% 50%", ...inn("dur-s") }, press);
+      tl.to(slot, { scale: 1, ...out }, press + HF.f("dur-s"));
+      // shape-morph (motion.md 3장 · beat-sheet 셈법 3): 글자 exit dur-s → 폭이 높이까지 줄어 원 dur-m → scale-from 점 dur-m
+      const morph = press + HF.f("dur-s") + HF.f("dur-m");                       // = 장면 f54 (전체 f213)
+      const label = { o: 1 };
+      const applyLabel = () => HF.part(frame, (doc) => { const el = doc.querySelector("#button-submit .label"); if (el) el.style.opacity = label.o; });
+      frame.addEventListener("load", applyLabel);
+      tl.fromTo(label, { o: 1 }, { o: 0, ...inn("dur-s"), onUpdate: applyLabel }, morph);
+      // 원: 좌우를 (폭 − 높이) ÷ 2 씩 잘라 폭 = 높이, 모서리 = 높이 ÷ 2 (부품 크기에서 계산)
+      const bw = HF.n("part-button-submit-w") * HF.n("video-scale");             // 980 (video.md 5장)
+      const bh = HF.n("part-button-submit-h") * HF.n("video-scale");             // 123 (video.md 5장)
+      const side = (bw - bh) / 2, round = bh / 2;
+      tl.fromTo(slot, { clipPath: "inset(0px 0px 0px 0px round 0px)" },
+        { clipPath: `inset(0px ${side}px 0px ${side}px round ${round}px)`, ...inn("dur-m") }, morph + HF.f("dur-s"));
+      tl.to(slot, { scale: HF.n("scale-from"), transformOrigin: "50% 50%", ...inn("dur-m") }, morph + HF.f("dur-s") + HF.f("dur-m"));
+      window.__timelines["s3"] = tl;                                             // 장면 끝 f78 → transition
+    })();
+  </script>
+</template>

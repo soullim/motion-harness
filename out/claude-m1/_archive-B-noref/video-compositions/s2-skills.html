@@ -1,0 +1,30 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s2-bg { background: var(--video-bg-soft); }                 /* beat-sheet 2: video-bg-soft */
+    /* 세로 3장 · 사이 video-gap (video.md 5장: 246×3 + 48×2 = 834 ≤ 888) · 무리째 화면 가운데 */
+  </style>
+  <div id="root" data-composition-id="s2" data-width="1920" data-height="1080">
+    <div id="s2-bg" class="scene-bg"></div>
+    <div id="s2-stage" class="scene-stage">
+      <div id="s2-card1" class="part-slot part-skill-card"><iframe class="part-frame" src="parts/skill-card-1.html" title="skill-card-1"></iframe></div>
+      <div id="s2-card2" class="part-slot part-skill-card"><iframe class="part-frame" src="parts/skill-card-2.html" title="skill-card-2"></iframe></div>
+      <div id="s2-card3" class="part-slot part-skill-card"><iframe class="part-frame" src="parts/skill-card-3.html" title="skill-card-3"></iframe></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      // skill-list: enter + 마스크 대신 위 dist-m · 투명도 0 → 1, stagger dur-m (motion.md 3장)
+      const enter = { duration: HF.f("dur-m"), ease: HF.ease("ease-out") };
+      ["#s2-card1", "#s2-card2", "#s2-card3"].forEach((sel, i) => {
+        tl.fromTo(sel, { y: HF.n("dist-m"), opacity: 0 }, { y: 0, opacity: 1, ...enter }, i * HF.f("dur-m"));
+      });
+      const holdStart = HF.f("dur-m") * 3;                                       // = 장면 f27 (전체 f102)
+      const outStart = holdStart + HF.f("hold-l");                               // = 장면 f81
+      tl.fromTo("#s2-stage", { opacity: 1 }, { opacity: 0, duration: HF.f("dur-s"), ease: HF.ease("ease-in") }, outStart);
+      tl.set({}, {}, outStart + HF.f("dur-s") / 2);                              // 장면 끝 f84
+      window.__timelines["s2"] = tl;
+    })();
+  </script>
+</template>

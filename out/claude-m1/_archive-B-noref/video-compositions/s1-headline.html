@@ -1,0 +1,41 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s1-bg { background: var(--video-bg); }                      /* beat-sheet 1: video-bg */
+    /* video-headline 2줄 가운데 (video.md 3장) · 줄마다 마스크 = 글줄 높이 (motion.md 2장 enter) */
+    #s1-headline { gap: 0; text-align: center; }
+    .s1-mask { overflow: hidden; height: var(--video-headline-line); max-width: var(--video-headline-max-w); }
+    .s1-line {
+      display: block;
+      font-weight: var(--video-headline-weight);
+      font-size: var(--video-headline-size);
+      line-height: var(--video-headline-line);
+      word-break: keep-all; white-space: nowrap;
+    }
+    #s1-line1 { color: var(--video-text); }
+    #s1-line2 { color: var(--video-accent); }                    /* 강조 색은 둘째 줄 전체 (video.md 3장) */
+  </style>
+  <div id="root" data-composition-id="s1" data-width="1920" data-height="1080">
+    <div id="s1-bg" class="scene-bg"></div>
+    <div id="s1-headline" class="scene-stage">
+      <div class="s1-mask"><span id="s1-line1" class="s1-line">오늘 배운 AI 스킬이</span></div>
+      <div class="s1-mask"><span id="s1-line2" class="s1-line">나의 자산이 되기까지</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const enter = { duration: HF.f("dur-m"), ease: HF.ease("ease-out") };       // motion.md 2장 enter
+      const rise = HF.n("mask-rise");                                            // motion.md 1장 mask-rise (%)
+      // headline-in: 줄마다 enter, 줄 사이 stagger dur-m (motion.md 3장 · 2장)
+      tl.fromTo("#s1-line1", { yPercent: rise }, { yPercent: 0, ...enter }, 0);
+      tl.fromTo("#s1-line2", { yPercent: rise }, { yPercent: 0, ...enter }, HF.f("dur-m"));
+      // hold-l 뒤 scene-out (exit dur-s · ease-in), 절반에서 cut-in-motion (beat-sheet 셈법 1)
+      const holdStart = HF.f("dur-m") * 2;                                       // = f18
+      const outStart = holdStart + HF.f("hold-l");                               // = f72
+      tl.fromTo("#s1-headline", { opacity: 1 }, { opacity: 0, duration: HF.f("dur-s"), ease: HF.ease("ease-in") }, outStart);
+      tl.set({}, {}, outStart + HF.f("dur-s") / 2);                              // 장면 끝 = f75
+      window.__timelines["s1"] = tl;
+    })();
+  </script>
+</template>

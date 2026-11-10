@@ -1,0 +1,68 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s6-bg { background: var(--video-bg-end); }                /* beat-sheet 6: video-bg-end */
+    /* logo 417×53 + video-gap + 슬로건 한 줄(78) 무리를 화면 가운데 (video.md 5장 · 3장) */
+    /* logo-reveal 글자 덩어리: 같은 logo 부품을 덩어리 수만큼 겹치고, 덩어리마다 x 범위만 보이게 잘라(clip-path)
+       그 안에서 mask-rise. 잘린 창 위아래 = 로고 높이 → 글줄 마스크 (motion.md 2장 enter) */
+    .s6-chunk { position: absolute; inset: 0; }
+    .s6-rise { position: absolute; inset: 0; }
+    #s6-slogan {
+      font-weight: var(--video-sub-weight);
+      font-size: var(--video-sub-size);
+      line-height: var(--video-sub-line);
+      color: var(--video-text-muted);                            /* video.md 3장 video-sub 색 */
+      text-align: center; word-break: keep-all; white-space: nowrap;
+    }
+  </style>
+  <div id="root" data-composition-id="s6" data-width="1920" data-height="1080">
+    <div id="s6-bg" class="scene-bg"></div>
+    <div id="s6-stage" class="scene-stage">
+      <!-- logo.html data-state="logotype-black" (?state= · design.md 6장), brand-icon 없음 (video.md 5장 엔드 카드) -->
+      <div id="s6-logo" class="part-slot part-logotype">
+        <!-- data-x0 · x1 = 덩어리 경계(피그마 px, 149 폭 기준). logo-logotype-black.svg path getBBox로 잼:
+             경계 = 이웃 덩어리 사이 틈의 가운데. 덩어리 = 심볼(path 0–4) + 글자 12개(H u d d l i n g C l u b) = 13 -->
+        <div class="s6-chunk" data-x0="0" data-x1="17.605" data-glyph="symbol"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo symbol"></iframe></div></div>
+        <div class="s6-chunk" data-x0="17.605" data-x1="34.345" data-glyph="H"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo H"></iframe></div></div>
+        <div class="s6-chunk" data-x0="34.345" data-x1="46.395" data-glyph="u"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo u"></iframe></div></div>
+        <div class="s6-chunk" data-x0="46.395" data-x1="58.185" data-glyph="d"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo d"></iframe></div></div>
+        <div class="s6-chunk" data-x0="58.185" data-x1="70.185" data-glyph="d"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo d"></iframe></div></div>
+        <div class="s6-chunk" data-x0="70.185" data-x1="75.385" data-glyph="l"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo l"></iframe></div></div>
+        <div class="s6-chunk" data-x0="75.385" data-x1="80.605" data-glyph="i"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo i"></iframe></div></div>
+        <div class="s6-chunk" data-x0="80.605" data-x1="92.685" data-glyph="n"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo n"></iframe></div></div>
+        <div class="s6-chunk" data-x0="92.685" data-x1="105.765" data-glyph="g"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo g"></iframe></div></div>
+        <div class="s6-chunk" data-x0="105.765" data-x1="120.84" data-glyph="C"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo C"></iframe></div></div>
+        <div class="s6-chunk" data-x0="120.84" data-x1="125.7" data-glyph="l"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo l"></iframe></div></div>
+        <div class="s6-chunk" data-x0="125.7" data-x1="137.535" data-glyph="u"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo u"></iframe></div></div>
+        <div class="s6-chunk" data-x0="137.535" data-x1="149" data-glyph="b"><div class="s6-rise"><iframe class="part-frame" src="parts/logo.html?state=logotype-black" title="logo b"></iframe></div></div>
+      </div>
+      <div id="s6-slogan">배운 만큼, 자산이 되는 곳</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const scale = HF.n("video-scale");
+      const W = HF.n("part-logotype-w");
+      const chunks = gsap.utils.toArray("#s6-logo .s6-chunk");
+      // 덩어리 창: 왼쪽 x0 · 오른쪽 (W − x1), × video-scale (위치 계산)
+      chunks.forEach((c) => {
+        const x0 = parseFloat(c.dataset.x0) * scale;
+        const r = (W - parseFloat(c.dataset.x1)) * scale;
+        c.style.clipPath = `inset(0px ${r}px 0px ${x0}px)`;
+      });
+      // logo-reveal (글자만): 덩어리마다 enter, 글자 사이 stagger dur-xs, 6개 상한 → 7번째부터 같이 (motion.md 2장 · 3장)
+      const max = HF.n("stagger-max");
+      const enter = { duration: HF.f("dur-m"), ease: HF.ease("ease-out") };
+      chunks.forEach((c, i) => {
+        tl.fromTo(c.querySelector(".s6-rise"), { yPercent: HF.n("mask-rise") }, { yPercent: 0, ...enter }, Math.min(i, max) * HF.f("dur-xs"));
+      });
+      // end-reveal: logo-reveal 끝 → dur-l 기다림 → 슬로건 enter + 마스크 대신 투명도 0 → 1 · dur-l (motion.md 3장)
+      const revealEnd = max * HF.f("dur-xs") + HF.f("dur-m");                    // = 장면 f27
+      const sloganStart = revealEnd + HF.f("dur-l");                             // = 장면 f42
+      tl.fromTo("#s6-slogan", { opacity: 0 }, { opacity: 1, duration: HF.f("dur-l"), ease: HF.ease("ease-out") }, sloganStart);
+      tl.set({}, {}, sloganStart + HF.f("dur-l") + HF.f("hold-end"));          // hold-end 뒤 장면 끝 f117 (영상 끝 정지)
+      window.__timelines["s6"] = tl;
+    })();
+  </script>
+</template>

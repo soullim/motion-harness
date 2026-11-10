@@ -1,0 +1,77 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s1-bg { background: var(--video-bg); }                          /* beat-sheet 1: video-bg */
+    /* 카메라 = 장면 전체를 담는 판. 변환은 스크립트가 cam-in · 따라가기 값으로만 정함 */
+    #s1-cam { position: absolute; inset: 0; transform-origin: 0 0; }
+    #s1-line {
+      position: absolute; white-space: pre;
+      height: var(--video-headline-line);
+      font-weight: var(--video-headline-weight);
+      font-size: var(--video-headline-size);
+      line-height: var(--video-headline-line);
+      color: var(--video-text);
+    }
+    #s1-line .s1-ch { display: none; }
+    /* 커서: 폭 6 · 끝 글자와 6 띄움 · 높이 = 행간 · 색 video-text (video.md 3장) */
+    #s1-cursor {
+      display: inline-block; vertical-align: top;
+      width: var(--video-cursor-w); height: var(--video-headline-line);
+      margin-left: var(--video-cursor-gap);
+      background: var(--video-text);
+    }
+  </style>
+  <div id="root" data-composition-id="s1" data-width="1920" data-height="1080">
+    <div id="s1-bg" class="scene-bg"></div>
+    <div id="s1-cam" data-layout-allow-overflow>
+      <!-- "오늘 배운 AI 스킬이" 12글자 (띄어쓰기도 한 글자 · beat-sheet 셈법 4) -->
+      <div id="s1-line" data-text="오늘 배운 AI 스킬이"><span class="s1-ch">오</span><span class="s1-ch">늘</span><span class="s1-ch"> </span><span class="s1-ch">배</span><span class="s1-ch">운</span><span class="s1-ch"> </span><span class="s1-ch">A</span><span class="s1-ch">I</span><span class="s1-ch"> </span><span class="s1-ch">스</span><span class="s1-ch">킬</span><span class="s1-ch">이</span><span id="s1-cursor"></span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const fontStr = `${HF.raw("video-headline-weight")} ${HF.raw("video-headline-size")} ${HF.raw("video-font")}`;
+      // 폰트가 다 읽힌 뒤 글자 폭을 재고 타임라인을 만든다 (video.md 5장 마지막 줄 · design.md 3장)
+      document.fonts.load(fontStr).then(build);
+      function build() {
+        const line = document.querySelector("#s1-line");
+        const cam = document.querySelector("#s1-cam");
+        const chars = gsap.utils.toArray("#s1-line .s1-ch");
+        const text = line.dataset.text;
+        const ctx = document.createElement("canvas").getContext("2d");
+        ctx.font = fontStr;
+        const wOf = (s) => ctx.measureText(s).width;
+        // 위치 계산: 화면 가운데 = 캔버스 폭 · 높이 ÷ 2. 글줄 무리(글자만)를 × 1에서 가로 · 세로 가운데 (배치 규칙 1)
+        const cx0 = HF.n("video-w") / 2, cy0 = HF.n("video-h") / 2;
+        const left = cx0 - wOf(text) / 2;
+        line.style.left = left + "px";
+        line.style.top = (cy0 - HF.n("video-headline-line") / 2) + "px";
+        // 커서 가운데 x (k번째 글자까지 친 뒤) = 글줄 왼쪽 + 친 글자 폭 + 띄움 + 커서 폭 ÷ 2
+        const cursorX = (k) => left + wOf(text.slice(0, k + 1)) + HF.n("video-cursor-gap") + HF.n("video-cursor-w") / 2;
+        // 카메라: 세계 좌표 (cx, cy0)를 화면 가운데에, 배율 s
+        const camState = { s: HF.n("cam-in"), cx: cursorX(0) };
+        const apply = () => { cam.style.transform = `translate(${cx0 - camState.s * camState.cx}px, ${cy0 - camState.s * cy0}px) scale(${camState.s})`; };
+        apply();
+
+        const tl = gsap.timeline({ paused: true });
+        const step = HF.f("type-step");
+        // text-type: type-step마다 한 글자 (움직임 없음) · 커서는 늘 끝 글자 뒤 (motion.md 3장)
+        chars.forEach((c, k) => tl.set(c, { display: "inline" }, k * step));
+        // cam-follow: cam-in · ease-linear · 글자 속도 그대로, 커서가 화면 가로 가운데 (motion.md 5장 · 배치 규칙 1)
+        const lin = HF.ease("ease-linear");
+        tl.fromTo(camState, { s: HF.n("cam-in"), cx: cursorX(0) }, { s: HF.n("cam-in"), cx: cursorX(0), duration: 0, onUpdate: apply }, 0);
+        for (let k = 1; k < chars.length; k++) {
+          tl.to(camState, { cx: cursorX(k), duration: step, ease: lin, onUpdate: apply }, (k - 1) * step);
+        }
+        // cam-pull: cam-in → × 1 · 글줄 → 화면 가운데 · dur-l · ease-inout (motion.md 5장), text-type 끝(글자 수 × type-step = f72)에서
+        const pull = chars.length * step;
+        tl.to(camState, { s: 1, cx: cx0, duration: HF.f("dur-l"), ease: HF.ease("ease-inout"), onUpdate: apply }, pull);
+        // hold-m → scene-out (글줄 · 커서 함께 exit), 절반에서 cut-in-motion (셈법 1)
+        const outStart = pull + HF.f("dur-l") + HF.f("hold-m");                 // = f117
+        tl.fromTo(cam, { opacity: 1 }, { opacity: 0, duration: HF.f("dur-s"), ease: HF.ease("ease-in") }, outStart);
+        tl.set({}, {}, outStart + HF.f("dur-s") / 2);                           // 장면 끝 f120
+        window.__timelines["s1"] = tl;
+      }
+    })();
+  </script>
+</template>

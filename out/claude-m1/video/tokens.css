@@ -1,0 +1,90 @@
+/*
+  tokens.css — claude-m1 영상의 docs 값은 이 파일 한 곳에만 둔다.
+  장면 코드(compositions/*.html)는 여기 이름만 부른다. 줄마다 출처.
+  움직임 값(dur · hold · ease · 거리 · 배율)도 CSS 변수로 두고, 장면 스크립트가 lib.js의 tok()로 읽는다.
+*/
+
+/* 폰트 — design.md 3장 A (로컬 파일). 경로는 video/ 기준 (tools/sync-src.sh가 src/assets를 assets/로 복사) */
+@font-face { font-family: "Pretendard"; font-weight: 400; src: url("assets/fonts/Pretendard-Regular.otf") format("opentype"); } /* design.md 3장 A 400 */
+@font-face { font-family: "Pretendard"; font-weight: 600; src: url("assets/fonts/Pretendard-SemiBold.otf") format("opentype"); } /* design.md 3장 A 600 */
+@font-face { font-family: "Pretendard"; font-weight: 700; src: url("assets/fonts/Pretendard-Bold.otf") format("opentype"); } /* design.md 3장 A 700 */
+
+:root {
+  /* ── 캔버스 ── */
+  --video-w: 1920px;                 /* video.md 머리말 캔버스 1920 */
+  --video-h: 1080px;                 /* video.md 머리말 캔버스 1080 */
+  --video-fps: 30;                   /* video.md 머리말 30fps · motion.md 머리말 30fps */
+  --video-scale: 2.8;                /* video.md 머리말 video-scale × 2.8 */
+  --video-safe: 96px;                /* video.md 머리말 video-safe */
+  --video-gap: 48px;                 /* video.md 머리말 video-gap */
+
+  /* ── 배경 ── */
+  --video-bg: #ffffff;               /* video.md 2장 video-bg = design.md 1장 color-bg */
+  --video-bg-soft: #f7f7f8;          /* video.md 2장 video-bg-soft = design.md 1장 color-surface */
+  --video-bg-end: #ffffff;           /* video.md 2장 video-bg-end = design.md 1장 color-bg */
+  --video-glow: 55, 89, 222;         /* video.md 2장 video-glow = design.md 1장 color-primary #3759de (rgb, 투명도는 아래) */
+  --video-glow-alpha: 0.45;          /* video.md 2장 video-glow 가운데 투명도 0.45 → 가장자리 0 */
+
+  /* ── 글자 색 ── */
+  --video-text: #18191b;             /* video.md 3장 video-text = design.md 1장 color-text */
+  --video-text-muted: #75777c;       /* video.md 3장 video-text-muted = design.md 1장 color-text-muted */
+  --video-accent: #3759de;           /* video.md 3장 video-accent = design.md 1장 color-primary */
+
+  /* ── 글자 스타일 ── */
+  --video-font: "Pretendard";        /* video.md 3장 폰트 Pretendard */
+  --video-headline-weight: 700;      /* video.md 3장 video-headline 굵기 */
+  --video-headline-size: 78px;       /* video.md 3장 video-headline 크기 (Text/display 28 × 2.8) */
+  --video-headline-line: 95px;       /* video.md 3장 video-headline 행간 (34 × 2.8) */
+  --video-headline-max-w: 1400px;    /* video.md 3장 헤드라인 한 줄 폭 1400px 이하 */
+  --video-sub-weight: 600;           /* video.md 3장 video-sub 굵기 */
+  --video-sub-size: 50px;            /* video.md 3장 video-sub 크기 (Text/heading 18 × 2.8) */
+  --video-sub-line: 78px;            /* video.md 3장 video-sub 행간 (28 × 2.8) */
+  --video-letter-spacing: 0;         /* video.md 3장 자간 0% */
+  --video-cursor-w: 6px;             /* video.md 3장 커서 폭 6px */
+  --video-cursor-gap: 6px;           /* video.md 3장 커서 끝 글자와 6px 띄움 (높이 = 행간, 색 = video-text) */
+
+  /* ── parts 피그마 크기 (영상에서는 × video-scale) ── */
+  --part-skill-card-w: 350px;        /* video.md 5장 skill-card 350×88 */
+  --part-skill-card-h: 88px;         /* video.md 5장 skill-card 350×88 */
+  --part-button-submit-w: 350px;     /* video.md 5장 button-submit 350×44 */
+  --part-button-submit-h: 44px;      /* video.md 5장 button-submit 350×44 */
+  --part-badge-approved-w: 108px;    /* video.md 5장 badge-approved 108×32 */
+  --part-badge-approved-h: 32px;     /* video.md 5장 badge-approved 108×32 */
+  --part-stat-card-w: 350px;         /* video.md 5장 stat-card 350×101 */
+  --part-stat-card-h: 101px;         /* video.md 5장 stat-card 350×101 */
+  --part-brand-icon-w: 98px;         /* video.md 5장 brand-icon 98×98 */
+  --part-brand-icon-h: 98px;         /* video.md 5장 brand-icon 98×98 */
+  --part-brand-icon-radius: 12px;    /* design.md 4장 radius-card (brand-icon.html 모서리 12) · video-glow 고리 모양용 */
+  --part-logotype-w: 149px;          /* video.md 5장 logo logotype 149×19 */
+  --part-logotype-h: 19px;           /* video.md 5장 logo logotype 149×19 */
+
+  /* ── 움직임: Duration (프레임) ── */
+  --dur-xs: 3;                       /* motion.md 1장 dur-xs */
+  --dur-s: 6;                        /* motion.md 1장 dur-s */
+  --dur-m: 9;                        /* motion.md 1장 dur-m */
+  --dur-l: 15;                       /* motion.md 1장 dur-l */
+  --dur-2xl: 36;                     /* motion.md 1장 dur-2xl */
+
+  /* ── 움직임: Easing (x1, y1, x2, y2) ── */
+  --ease-out: 0.33, 1, 0.68, 1;      /* motion.md 1장 ease-out */
+  --ease-in: 0.32, 0, 0.67, 0;       /* motion.md 1장 ease-in */
+  --ease-inout: 0.65, 0, 0.35, 1;    /* motion.md 1장 ease-inout */
+  --ease-linear: 0, 0, 1, 1;         /* motion.md 1장 ease-linear (linear = 0,0,1,1) */
+
+  /* ── 움직임: 거리 · 배율 ── */
+  --mask-rise: 100%;                 /* motion.md 1장 mask-rise (글줄 높이) */
+  --dist-m: 24px;                    /* motion.md 1장 dist-m */
+  --press-scale: 0.97;               /* motion.md 1장 press-scale */
+  --scale-from: 0;                   /* motion.md 1장 scale-from */
+  --cam-in: 2.4;                     /* motion.md 1장 cam-in × 2.4 */
+  --cut-scale: 1.7;                  /* motion.md 1장 cut-scale × 1.7 */
+  --spin: 360;                       /* motion.md 1장 spin rotateZ 360° */
+  --type-step: 6;                    /* motion.md 1장 type-step = dur-s (프레임) */
+  --stagger-max: 6;                  /* motion.md 2장 stagger 6개 상한 (7번째부터 같이) */
+
+  /* ── 머무는 시간 (프레임) ── */
+  --hold-s: 18;                      /* motion.md 4장 hold-s */
+  --hold-m: 30;                      /* motion.md 4장 hold-m */
+  --hold-l: 54;                      /* motion.md 4장 hold-l */
+  --hold-end: 60;                    /* motion.md 4장 hold-end */
+}

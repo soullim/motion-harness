@@ -1,0 +1,51 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s4-bg { background: var(--video-bg-soft); }                     /* beat-sheet 4: video-bg-soft */
+    #s4-cam { position: absolute; inset: 0; transform-origin: 50% 50%; }   /* zoom-through 대상 = 화면 가운데 (중심 이동 없음) */
+    #s4-icon-wrap { position: relative; flex: none; }
+    /* video-glow 고리: brand-icon 모양(같은 크기 · 모서리) · 같은 중심 · color-primary 가운데 0.45 → 가장자리 0 · 블러 없음 (video.md 2장 · motion.md icon-spin) */
+    #s4-glow {
+      position: absolute; inset: 0;
+      border-radius: calc(var(--part-brand-icon-radius) * var(--video-scale));
+      background: radial-gradient(closest-side, rgba(var(--video-glow), var(--video-glow-alpha)), rgba(var(--video-glow), 0));
+      opacity: 0;
+    }
+  </style>
+  <div id="root" data-composition-id="s4" data-width="1920" data-height="1080">
+    <div id="s4-bg" class="scene-bg"></div>
+    <div id="s4-cam" data-layout-allow-overflow>
+      <div class="scene-stage">
+        <div id="s4-icon-wrap" class="part-slot part-brand-icon">
+          <div id="s4-glow"></div>
+          <div id="s4-icon" class="part-slot part-brand-icon"><iframe class="part-frame" src="parts/brand-icon.html" title="brand-icon"></iframe></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      // enter + 마스크 대신 scale-from → 1 (dur-m · ease-out · 가운데)
+      HF.leadFromTo(tl, "#s4-icon", { scale: HF.n("scale-from") }, { scale: 1 }, "dur-m", "ease-out", 0, { transformOrigin: "50% 50%" }); // 장면 첫 프레임에 이미 enter 중
+      // hold-s 뒤 icon-spin: spin rotateZ dur-m ease-out + 고리 × 1 → cut-scale · 투명도 → 0 · dur-l ease-out (motion.md 3장)
+      const spin = HF.f("dur-m") + HF.f("hold-s");                               // = 장면 f27 (전체 f303)
+      tl.fromTo("#s4-icon", { rotation: 0 }, { rotation: HF.n("spin"), duration: HF.f("dur-m"), ease: HF.ease("ease-out") }, spin);
+      // 고리는 타임라인 시각에서 바로 계산 (spin 전 = 안 보임 · 앞뒤로 seek해도 같은 값)
+      const glow = document.querySelector("#s4-glow");
+      const glowDur = HF.f("dur-l"), glowEase = HF.ease("ease-out"), glowTo = HF.n("cut-scale");
+      const applyGlow = () => {
+        const t = tl.time();
+        if (t < spin) { glow.style.opacity = 0; glow.style.transform = "scale(1)"; return; }
+        const e = glowEase(Math.min(1, (t - spin) / glowDur));
+        glow.style.opacity = 1 - e;
+        glow.style.transform = `scale(${1 + (glowTo - 1) * e})`;
+      };
+      tl.eventCallback("onUpdate", applyGlow);
+      // zoom-through: × 1 → cam-in · dur-l · ease-in, brand-icon 가운데로 → 끝에 transition (셈법 5: icon-spin 바로 뒤)
+      const zoom = spin + HF.f("dur-l");                                          // = 장면 f42 (전체 f318)
+      tl.fromTo("#s4-cam", { scale: 1 }, { scale: HF.n("cam-in"), duration: HF.f("dur-l"), ease: HF.ease("ease-in") }, zoom);
+      window.__timelines["s4"] = tl;                                            // 장면 끝 f57 → transition
+    })();
+  </script>
+</template>

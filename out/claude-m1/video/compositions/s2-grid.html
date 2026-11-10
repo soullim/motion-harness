@@ -1,0 +1,57 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s2-bg { background: var(--video-bg-soft); }                    /* beat-sheet 2: video-bg-soft */
+    #s2-cam { position: absolute; inset: 0; transform-origin: 0 0; }
+    /* 3열 × 2줄 · 칸 = brand-icon 영상 크기 · 칸 사이 video-gap · 격자 무리 화면 가운데 (배치 규칙 2)
+       폭 = 3 × 274 + 2 × 48 = 918 · 높이 = 2 × 274 + 48 = 596 → video-safe 안쪽 1728 × 888 안 */
+    #s2-grid {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      display: grid; grid-template-columns: repeat(3, auto); gap: var(--video-gap);
+    }
+    /* 칸 = 마스크 창 (motion.md 2장 enter: 마스크 안에서 mask-rise → 0) */
+    .s2-cell { overflow: hidden; clip-path: inset(0); }   /* 칸 가장자리(274.4px · 소수점)에서 반 픽셀 비침 방지 */
+    .s2-rise { position: absolute; inset: 0; opacity: 0; }   /* 처음엔 마스크 밖 → maskWatch가 보이게 바꿈 */
+  </style>
+  <div id="root" data-composition-id="s2" data-width="1920" data-height="1080">
+    <div id="s2-bg" class="scene-bg"></div>
+    <div id="s2-cam" data-layout-allow-overflow>
+      <div id="s2-grid">
+        <div class="part-slot part-brand-icon s2-cell" data-col="0" data-row="0"><div class="s2-rise"><iframe class="part-frame" src="parts/brand-icon.html" title="brand-icon 1-1"></iframe></div></div>
+        <div class="part-slot part-brand-icon s2-cell" data-col="1" data-row="0"><div class="s2-rise"><iframe class="part-frame" src="parts/brand-icon.html" title="brand-icon 1-2"></iframe></div></div>
+        <div class="part-slot part-brand-icon s2-cell" data-col="2" data-row="0"><div class="s2-rise"><iframe class="part-frame" src="parts/brand-icon.html" title="brand-icon 1-3"></iframe></div></div>
+        <div class="part-slot part-brand-icon s2-cell" data-col="0" data-row="1"><div class="s2-rise"><iframe class="part-frame" src="parts/brand-icon.html" title="brand-icon 2-1"></iframe></div></div>
+        <div class="part-slot part-brand-icon s2-cell" data-col="1" data-row="1"><div class="s2-rise"><iframe class="part-frame" src="parts/brand-icon.html" title="brand-icon 2-2"></iframe></div></div>
+        <div class="part-slot part-brand-icon s2-cell" data-col="2" data-row="1"><div class="s2-rise"><iframe class="part-frame" src="parts/brand-icon.html" title="brand-icon 2-3"></iframe></div></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const cam = document.querySelector("#s2-cam");
+      // enter · stagger (열마다): 열 j는 j × dur-m에 위 · 아래 칸 같이 (beat-sheet 2 타임라인)
+      const enter = { duration: HF.f("dur-m"), ease: HF.ease("ease-out") };
+      gsap.utils.toArray("#s2-grid .s2-cell").forEach((cell) => {
+        const col = parseInt(cell.dataset.col, 10);
+        const rise = cell.querySelector(".s2-rise");
+        if (col === 0) HF.leadFromTo(tl, rise, { yPercent: HF.n("mask-rise") }, { yPercent: 0 }, "dur-m", "ease-out", 0); // 첫 열 = 장면 첫 프레임에 이미 enter 중
+        else tl.fromTo(rise, { yPercent: HF.n("mask-rise") }, { yPercent: 0, ...enter }, col * HF.f("dur-m"));
+      });
+      // zoom-through: × 1 → cam-in · dur-l · ease-in, 위 줄 가운데 칸으로 → 끝에 transition (motion.md 3장 · 배치 규칙 2)
+      // 위 줄 가운데 칸 가운데: x = 화면 가운데, y = 화면 가운데 − 격자 높이 ÷ 2 + 칸 높이 ÷ 2
+      const cx0 = HF.n("video-w") / 2, cy0 = HF.n("video-h") / 2;
+      const cellH = HF.n("part-brand-icon-h") * HF.n("video-scale");
+      const gridH = 2 * cellH + HF.n("video-gap");
+      const target = { x: cx0, y: cy0 - gridH / 2 + cellH / 2 };
+      const camState = { s: 1, x: cx0, y: cy0 };
+      const apply = () => { cam.style.transform = `translate(${cx0 - camState.s * camState.x}px, ${cy0 - camState.s * camState.y}px) scale(${camState.s})`; };
+      apply();
+      const zoom = 3 * HF.f("dur-m") + HF.f("hold-s");                          // = 장면 f45 (전체 f165)
+      tl.fromTo(camState, { s: 1, x: cx0, y: cy0 },
+        { s: HF.n("cam-in"), x: target.x, y: target.y, duration: HF.f("dur-l"), ease: HF.ease("ease-in"), onUpdate: apply }, zoom);
+      HF.maskWatch(tl, "#s2-grid .s2-rise");                                    // 마스크 밖 머리카락 선 방지
+      window.__timelines["s2"] = tl;                                           // 장면 끝 f60 → transition
+    })();
+  </script>
+</template>

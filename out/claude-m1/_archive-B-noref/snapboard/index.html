@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>claude-m1 스냅보드</title>
+<style>
+  @font-face { font-family: "Pretendard"; font-weight: 400; src: url("../video/assets/fonts/Pretendard-Regular.otf") format("opentype"); }
+  @font-face { font-family: "Pretendard"; font-weight: 600; src: url("../video/assets/fonts/Pretendard-SemiBold.otf") format("opentype"); }
+  :root { --bg: #f7f7f8; --surface: #ffffff; --text: #18191b; --muted: #75777c; --border: #e9eaed; } /* design.md 1장 */
+  body { margin: 0; padding: 32px 16px; background: var(--bg); color: var(--text); font-family: "Pretendard", sans-serif; }
+  header, main { max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  header p { margin: 0 0 24px; font-size: 14px; color: var(--muted); }
+  main { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+  figure { margin: 0; }
+  img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  figcaption { margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--muted); }
+  figcaption b { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>claude-m1 스냅보드 · B안 6장면 · 450f</h1>
+    <p>장면마다 한 컷: enter가 끝나고 머묾이 시작된 프레임 (beat-sheet.md 장면별 타임라인). 승인 ② 대기.</p>
+  </header>
+  <main>
+    <figure>
+      <img src="s01.png" alt="장면 1 헤드라인 f18" width="1920" height="1080">
+      <figcaption><b>1 헤드라인</b> · 시작 f0 · 컷 f18 · headline-in</figcaption>
+    </figure>
+    <figure>
+      <img src="s02.png" alt="장면 2 스킬 f102" width="1920" height="1080">
+      <figcaption><b>2 스킬</b> · 시작 f75 · 컷 f102 · skill-list</figcaption>
+    </figure>
+    <figure>
+      <img src="s03.png" alt="장면 3 제출 f168" width="1920" height="1080">
+      <figcaption><b>3 제출</b> · 시작 f159 · 컷 f168 · part-in → button-press 앞 hold-m</figcaption>
+    </figure>
+    <figure>
+      <img src="s04.png" alt="장면 4 승인 f246" width="1920" height="1080">
+      <figcaption><b>4 승인</b> · 시작 f237 · 컷 f246 · badge-pulse (shape-morph 이어받음)</figcaption>
+    </figure>
+    <figure>
+      <img src="s05.png" alt="장면 5 수익 f312" width="1920" height="1080">
+      <figcaption><b>5 수익</b> · 시작 f267 · 컷 f312 · part-in → count-up 끝</figcaption>
+    </figure>
+    <figure>
+      <img src="s06.png" alt="장면 6 엔드 f390" width="1920" height="1080">
+      <figcaption><b>6 엔드</b> · 시작 f333 · 컷 f390 · end-reveal (logo-reveal 글자만 + 슬로건)</figcaption>
+    </figure>
+  </main>
+</body>
+</html>

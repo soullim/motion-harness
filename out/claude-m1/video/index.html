@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<!-- gsap 3.15.0: HyperFrames에 함께 든 사본을 프로젝트 안에 둠 (렌더 브라우저가 CDN에 못 닿음) -->
+<script src="assets/vendor/gsap.min.js"></script>
+<link rel="stylesheet" href="tokens.css" />
+<script src="lib.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    width: var(--video-w);
+    height: var(--video-h);
+    overflow: hidden;
+    background: var(--video-bg);
+    font-family: var(--video-font), sans-serif;
+    letter-spacing: var(--video-letter-spacing);
+  }
+  #root { position: relative; width: 100%; height: 100%; }
+
+  /* 장면 공통: 바탕 한 색 (video.md 2장) · 무대는 화면 가운데 (video.md 5장 "가운데 기준") */
+  .scene-bg { position: absolute; inset: 0; }
+  .scene-stage {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: var(--video-gap);
+  }
+
+  /* 부품 자리: 크기 = 피그마 크기 × video-scale (video.md 5장).
+     iframe = src/parts 원본 그대로(복사본 parts/*.html), 피그마 크기로 열고 video-scale로 키움.
+     왼쪽 위 기준으로 키워 자리를 꽉 채우므로, 자리 가운데 = 부품 가운데 (video.md 5장 "기준점은 부품 가운데"와 같은 결과) */
+  .part-slot { position: relative; flex: none; width: calc(var(--pw) * var(--video-scale)); height: calc(var(--ph) * var(--video-scale)); }
+  .part-frame {
+    position: absolute; left: 0; top: 0;
+    width: var(--pw); height: var(--ph);
+    border: 0; background: transparent; overflow: hidden;
+    transform: scale(var(--video-scale)); transform-origin: 0 0;
+  }
+  .part-skill-card     { --pw: var(--part-skill-card-w);      --ph: var(--part-skill-card-h); }
+  .part-button-submit  { --pw: var(--part-button-submit-w);   --ph: var(--part-button-submit-h); }
+  .part-badge-approved { --pw: var(--part-badge-approved-w);  --ph: var(--part-badge-approved-h); }
+  .part-stat-card      { --pw: var(--part-stat-card-w);       --ph: var(--part-stat-card-h); }
+  .part-brand-icon     { --pw: var(--part-brand-icon-w);      --ph: var(--part-brand-icon-h); }
+  .part-logotype       { --pw: var(--part-logotype-w);        --ph: var(--part-logotype-h); }
+</style>
+</head>
+<body>
+<!-- 장면 시작 · 길이 = beat-sheet.md (A안) 장면표 프레임 ÷ 30fps (video.md 머리말) -->
+<div id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1920" data-height="1080">
+  <!-- 1 훅 f0–120 → 0 · 120/30 = 4 -->
+  <div id="s1" data-composition-id="s1" data-composition-src="compositions/s1-hook.html" data-start="0" data-duration="4" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+  <!-- 2 격자 f120–180 → 120/30 = 4 · 60/30 = 2 -->
+  <div id="s2" data-composition-id="s2" data-composition-src="compositions/s2-grid.html" data-start="4" data-duration="2" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+  <!-- 3 부품 둘레 f180–276 → 180/30 = 6 · 96/30 = 3.2 -->
+  <div id="s3" data-composition-id="s3" data-composition-src="compositions/s3-ring.html" data-start="6" data-duration="3.2" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+  <!-- 4 상징 · 빛 f276–333 → 276/30 = 9.2 · 57/30 = 1.9 -->
+  <div id="s4" data-composition-id="s4" data-composition-src="compositions/s4-symbol.html" data-start="9.2" data-duration="1.9" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+  <!-- 5 엔드 f333–450 → 333/30 = 11.1 · 117/30 = 3.9 -->
+  <div id="s5" data-composition-id="s5" data-composition-src="compositions/s5-end.html" data-start="11.1" data-duration="3.9" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = gsap.timeline({ paused: true });
+</script>
+</body>
+</html>

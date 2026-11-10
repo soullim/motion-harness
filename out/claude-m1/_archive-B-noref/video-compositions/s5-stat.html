@@ -1,0 +1,37 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #s5-bg { background: var(--video-bg-soft); }                 /* beat-sheet 5: video-bg-soft */
+  </style>
+  <div id="root" data-composition-id="s5" data-width="1920" data-height="1080">
+    <div id="s5-bg" class="scene-bg"></div>
+    <div id="s5-stage" class="scene-stage">
+      <div id="s5-stat" class="part-slot part-stat-card"><iframe id="s5-stat-frame" class="part-frame" src="parts/stat-card.html" title="stat-card"></iframe></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const frame = document.querySelector("#s5-stat-frame");
+      // part-in (motion.md 3장)
+      tl.fromTo("#s5-stat", { y: HF.n("dist-m"), opacity: 0 },
+        { y: 0, opacity: 1, duration: HF.f("dur-m"), ease: HF.ease("ease-out") }, 0);
+      // count-up: 0 → data-final · dur-2xl · ease-out · 정수 (motion.md 3장)
+      // 숫자: tabular-nums · 천 단위 쉼표 (video.md 3장). 부품 주석대로 span textContent만 바꾼다
+      const count = { v: 0 };
+      const apply = () => HF.part(frame, (doc) => {
+        const span = doc.querySelector("#stat-card-amount");
+        if (!span) return;
+        const finalV = parseInt(span.dataset.final.replace(/,/g, ""), 10);
+        span.style.fontVariantNumeric = "tabular-nums";
+        span.textContent = Math.round(finalV * count.v).toLocaleString("en-US");
+      });
+      frame.addEventListener("load", apply);
+      tl.fromTo(count, { v: 0 }, { v: 1, duration: HF.f("dur-2xl"), ease: HF.ease("ease-out"), onUpdate: apply }, HF.f("dur-m"));
+      const outStart = HF.f("dur-m") + HF.f("dur-2xl") + HF.f("hold-s");         // = 장면 f63
+      tl.fromTo("#s5-stage", { opacity: 1 }, { opacity: 0, duration: HF.f("dur-s"), ease: HF.ease("ease-in") }, outStart);
+      tl.set({}, {}, outStart + HF.f("dur-s") / 2);                              // 장면 끝 f66
+      window.__timelines["s5"] = tl;
+    })();
+  </script>
+</template>
